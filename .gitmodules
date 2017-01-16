@@ -1,0 +1,12 @@
+[submodule "shop-android"]
+	path = shop-android
+	url = https://github.com/niccorder/shop-android
+[submodule "shop-server"]
+	path = shop-server
+	url = https://github.com/niccorder/shop-server
+[submodule "shop-android_track"]
+	path = shop-android
+	url = git@github.com:niccorder/shop-android.git
+[submodule "shop-server_track"]
+	path = shop-server
+	url = git@github.com:niccorder/shop-server.git
