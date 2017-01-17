@@ -1,0 +1,609 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title>reveal.js</title>
+
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet" href="css/theme/black.css">
+
+    <!-- Theme used for syntax highlighting of code -->
+    <link rel="stylesheet" href="lib/css/zenburn.css">
+
+    <style>
+        .reveal .footer {
+            position: absolute;
+            bottom: 2%;
+            left: 1em;
+            font-size: 0.7em;
+        }
+    </style>
+
+    <!-- Printing and PDF exports -->
+    <script>
+        var link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = window.location.search.match(/print-pdf/gi) ? 'css/print/pdf.css' : 'css/print/paper.css';
+        document.getElementsByTagName('head')[0].appendChild(link);
+    </script>
+</head>
+
+<body>
+<div class="reveal">
+    <p class="footer">1/17/2017 | Nicholas Corder</p>
+    <div class="slides">
+
+        <!-- Splash View -->
+        <section>
+            <h1>Shop!</h1>
+            <h3 style="opacity: .9; font-size: 75%">A modern technology stack, and how data flows through
+                it.</h3>
+        </section>
+
+        <!-- About me! -->
+        <section class="stack present">
+            <h1 style="font-family: 'Source Code Pro'">whoami</h1>
+
+            <!-- Education. -->
+            <section class="fade">
+                <ul>
+                    <li>B.S. in Physics & Computer Science.
+                        <ul>
+                            <li>&frac12; of masters in A.I. completed.</li>
+                            <li>Graduated 1 year early with honors.</li>
+                            <li>Chapman University.</li>
+                        </ul>
+                    </li>
+                </ul>
+            </section>
+
+            <!-- Personal philosophies. -->
+            <section class="fade">
+                <ul>
+                    <li> Always pursue knowledge.
+                        <ul>
+                            <li>Understanding > Knowing.</li>
+                            <li>Sharing is caring.</li>
+                            <li>Everyone has something to teach you.</li>
+                        </ul>
+                    </li>
+                </ul>
+            </section>
+
+            <!-- Current -->
+            <section class="fade">
+                <ul>
+                    <li> Currently...
+                        <ul>
+                            <li>Living in WeHo (by Barney's Beanery).</li>
+                            <li>Working in Santa Monica on the client side.</li>
+                            <li>Am giving a presentation.</li>
+                        </ul>
+                    </li>
+                </ul>
+            </section>
+        </section>
+
+        <!-- Project Goals -->
+        <section>
+            <h1>Project Goals</h1>
+
+            <section>
+                <ol>
+                    <li>Help other's understand the full-stack of software.</li>
+                    <li>Help solidify my understanding where it lacked.</li>
+                    <li>Bridge the gap between client/service engineer's understanding of the other's work.</li>
+                </ol>
+            </section>
+        </section>
+
+        <!-- Start Services presentation. -->
+        <section class="stack present">
+            <h1>Shop - Services</h1>
+
+            <!-- A brief services description. -->
+            <section data-markdown class="fade">
+                <p>Built using popular JVM based frameworks, written in scala. As of right now it simply provides basic
+                    CRUD properties.</p>
+            </section>
+
+            <!-- Our Services dependencies -->
+            <section class="fade">
+                <ul style="font-size: 75%">
+                    <li><b>Finagle</b>
+                        <ul>
+                            <li>
+                                Finagle is an extensible RPC system for the JVM, used to construct high-concurrency
+                                servers.
+                            </li>
+                        </ul>
+                    </li>
+                    <li><b>Finatra</b>
+                        <ul>
+                            <li>Fast, testable, Scala services built on TwitterServer and Finagle.</li>
+                        </ul>
+                    </li>
+                    <li><b>Thrift</b>
+                        <ul>
+                            <li> Generates client-services code for us... is language agnostic.
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </section>
+            <section class="fade">
+                <p>Designed to follow the modern microservice architecture, but was unable to setup all components in
+                    time. So with that in mind...</p>
+            </section>
+        </section>
+
+
+        <!-- Our service layer descriptions. -->
+        <section class="stack present">
+            <section class="fade">
+                <h1>First Layer</h1>
+                <ul>
+                    <li>
+                        Nginx instance acts as gateway/loadbalancer (currently using ngrok).
+                    </li>
+                </ul>
+            </section>
+            <section class="fade">
+                <h1>Second Layer</h1>
+                <ul>
+                    <li>
+                        Our REST client built with Finatra (What clients interface with).
+                    </li>
+                    <ul>
+                        <li>
+                            A thrift client middle-layer that speaks to our datastore client. This is important for
+                            security (datastore client is inward facing), and scalability (can speak to different
+                            boxes hosting datastore client).
+                        </li>
+                    </ul>
+                </ul>
+            </section>
+            <section class="fade">
+                <h1>Third Layer</h1>
+                <ul>
+                    <li>Our datastore client built with finagle.</li>
+                    <ul>
+                        <li>A thrift server (What our REST client interfaces with).</li>
+                    </ul>
+                </ul>
+            </section>
+            <section class="fade">
+                <h1>Fourth layer</h1>
+                <ul>
+                    <li>
+                        Our actual datastores [Mysql, Redis...] (what our datastore client interfaces with).
+                    </li>
+                    <ul>
+                        <li>Currently setup as an in-memory datastore due to time constraints.</li>
+                    </ul>
+                </ul>
+            </section>
+        </section>
+
+        <!-- Our datastore layer descriptions. -->
+        <section class="stack present">
+            <section class="fade">
+                <h3>The Thrift</h3>
+                <pre><code data-trim data-noescape>
+                    #@namespace scala me.niccorder.shop
+
+                    service ItemDatastore {
+                        string createItem(1: item.Item item)
+                        string deleteItem(1: i32 id)
+                        item.Item getItem(1: i32 id)
+                    }
+
+                    struct Item {
+                        1: required string itemId
+                        2: required string name
+                        3: required double price
+                        4: optional string description
+                    }
+                </code></pre>
+            </section>
+            <section class="fade">
+                <h3>Injection w/ Guice</h3>
+                <pre><code data-trim data-noescape>
+                    // Twitter server flag that sets up our DTab
+                    // Pretend this is a cmd-line flag (because it is).
+                    private implicit val itemDatastoreDestFlag = flag(
+                        "item.datastore.dest",
+                        "/s/item-datastore-server",
+                        "The item datastore's destination path."
+                    )
+                    .
+                    .
+                    // Provides a filter that enables tracing for our server.
+                    @Provides
+                    @Singleton
+                    def provideTraceMDCFilter(
+                    ): TraceIdMDCFilter[Request, Response] = new TraceIdMDCFilter
+                    </code></pre>
+            </section>
+            <section class="fade">
+                <h3>Creating our server</h3>
+                <pre><code data-trim data-noescape>
+                        // A companion class which gradle will run.
+                        object ItemApiServerMain extends ItemApiServer
+
+                        // Our implementation of finatra's http server.
+                        class ItemApiServer extends HttpServer {
+                            .
+                            .
+                            .
+                            override protected def configureHttp(router: HttpRouter): Unit =
+                                router                   // add request filters.
+                                    .filter[TraceIdMDCFilter[Request, Response]]
+                                    .filter[CommonFilters]
+                                    .add[ItemController] // Add our controller.
+                        }
+                    </code></pre>
+            </section>
+            <section class="fade">
+                <h3>Handling requests</h3>
+                <pre><code data-trim data-noescape>
+                    // Registers our endpoint, and sets name for statistics.
+                    get("/item/:id", name = "get_item") { req: Request =>
+                        try {
+                          response.ok.json( // Sends 200 response as json.
+                            Await.result(   // Waits for future response.
+                                // our thrift client.
+                                itemDatastore.getItem(req.getParam("id").toInt)
+                            )
+                          )
+                        } catch {
+                            // Handle & send correct resp.
+                            case t: Throwable => . . .
+                        }
+                    }
+                    </code></pre>
+            </section>
+            <section class="fade">
+                <h1>Retrieving data</h1>
+                <pre><code data-trim data-noescape>
+                    // Our temporary datastore... an in memory map.
+                    val memoryStore: Map[Int, Item] = Map.empty
+                    .
+                    .
+                    .
+                    // Our finagle thrift service implementation.
+                    override val getItem = handle(GetItem) { args =>
+                        // Return a future to not hog service resources.
+                        Future.apply {
+                            // Just 'get' the key.
+                            memoryStore.apply(args.id)
+                        }
+                    }
+                    </code></pre>
+            </section>
+            <section class="fade">
+                <h1>The result?</h1>
+                <pre><code data-trim data-noescape>
+                        {
+                            "item_id": "3",
+                            "name": "cheese",
+                            "price": 24.3,
+                            "description": "hello",
+                            "passthrough_fields": {} // Ignore this.
+                        }
+                    </code></pre>
+            </section>
+        </section>
+
+        <!-- START CLIENT PRESENTATION. -->
+        <section class="stack present">
+            <h1>Shop - Client</h1>
+
+            <!-- Client introduction. -->
+            <section data-markdown class="fade">
+                <p>An android application built using some of the most popular frameworks in modern android application
+                    development.</p>
+            </section>
+
+            <!-- Client frameworks pt 1-->
+            <section class="fade">
+                <ul style="font-size: 75%">
+                    <li><b>Timber</b>
+                        <ul>
+                            <li>
+                                A wrapper for android's logcat that is extremely extensible, and much nicer to use.
+                            </li>
+                        </ul>
+                    </li>
+                    <li><b>RxJava</b>
+                        <ul>
+                            <li>Bringing the Gang of Four's Observer pattern to java, along with some of the best
+                                functional programming features.
+                            </li>
+                        </ul>
+                    </li>
+                    <li><b>Dagger2</b>
+                        <ul>
+                            <li>Dependency injection at it's finest. Provides an awesome way to inject complex
+                                dependency graphs in an android application.
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </section>
+
+            <!-- Client frameworks pt 2-->
+            <section class="fade">
+                <ul style="font-size: 75%">
+                    <li><b>Epoxy</b>
+                        <ul>
+                            <li>
+                                An awesome way to display lists in android created by AirBnB. (Also is a project I
+                                contribute to!)
+                            </li>
+                        </ul>
+                    </li>
+                    <li><b>Retrofit2</b>
+                        <ul>
+                            <li>Squares beautifully designed project that enables the most simplistic way to create a
+                                service to interact with REST http endpoints. (Checkout the source, it's awesome)
+                            </li>
+                        </ul>
+                    </li>
+                    <li><b>Butterknife</b>
+                        <ul>
+                            <li> A view injection library that reduces so much code bloat it should be illegal.
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </section>
+        </section>
+
+        <!-- Client Architecture. -->
+        <section class="stack present">
+            <!-- Clean architecture Description. -->
+            <section class="fade">
+                <p>For this project I followed the <span style="color: mintcream"><b>Clean Architecture</b></span>
+                    design from my boy, <span style="color: mintcream"><b>Uncle Bob.</b></span> The main rule in clean
+                    Architecture is the <span style="color: mintcream"><b>dependency rule</b></span> which states that
+                    your dependency flow should always point <span style="color: mintcream"><b>inward.</b></span></p>
+            </section>
+
+            <!-- Clean Architecture Image. -->
+            <section class="fade">
+                <img src="https://8thlight.com/blog/assets/posts/2012-08-13-the-clean-architecture/CleanArchitecture-8b00a9d7e2543fa9ca76b81b05066629.jpg"/>
+            </section>
+
+            <!-- Clean Architecture in our application. -->
+            <section class="fade">
+                <p>So, how did I set it up?</p>
+                <p class="fragment" data-fragment-index="0">... Good question.</p>
+            </section>
+
+            <!-- The outer layer. -->
+            <section class="fade">
+                <h2>The outer layer</h2>
+                <ul>
+                    <li>Any android specifics (i.e. local storage, views, activities, fragments...).</li>
+                    <li>Our REST services.</li>
+                </ul>
+            </section>
+
+            <!-- The middle layer. -->
+            <section class="fade">
+                <h2>The middle layer</h2>
+                <ul>
+                    <li>Presenters (from our MVP architecture).</li>
+                    <li>Our services.</li>
+                </ul>
+            </section>
+
+            <!-- The inner layer. -->
+            <section class="fade">
+                <h2>The inner layer</h2>
+                <ul>
+                    <li>Data Models (i.e. our thrift generated Item)</li>
+                    <li>Interactors <i>(also called use-cases)</i></li>
+                </ul>
+            </section>
+        </section>
+
+        <!-- Code examples ... MVP -->
+        <section class="stack present">
+            <h2>MVP Setup</h2>
+            <section class="fade">
+                <pre><code data-trim data-noescape>
+                    public class ViewItemModel {
+                        public String id;
+                        public String name;
+                        public String description;
+                        public float price;
+
+                        public ViewItemModel(String id, ...) {...}
+                    }
+                </code></pre>
+            </section>
+            <section class="fade">
+                <pre><code data-trim data-noescape>
+                    // Our view contract; should be implemented by android views.
+                    public interface ListItemView extends BaseView {
+                        .
+                        .
+                        .
+                        void addItems(Collection&lt;DomainItemModel&gt; models);
+                        void removeAllItems();
+                    }
+                </code></pre>
+            </section>
+            <section class="fade">
+                <pre><code data-trim data-noescape>
+                    // Our android fragment that implements our View contract.
+                    public class ItemListFragment extends AbstractFragment
+                        implements ListItemView {
+                        // Injected by dagger 2
+                        @Inject ItemListPresenter&lt;ListItemView&gt; mPresenter;
+                        .
+                        .
+                        .
+                        @Override public void addItems(
+                                Collection&lt;DomainItemModel&gt; models) {
+                            Observable.from(models)
+                                .map(...).subscribe(mRecyclerAdapter::addModels);
+                        }
+                    }
+                </code></pre>
+            </section>
+            <section class="fade">
+                <pre><code data-trim data-noescape>
+                    public class ItemListPresenterImpl
+                        implements ItemListPresenter&lt;ListItemView&gt; {
+
+                        private GetItemInteractor getItemInteractor;
+                        private ListItemView view;
+
+                        // Calls interactor to handle business logic.
+                        @Override public void refreshAllItems() {
+                            getItemInteractor
+                                .getAllItems()
+                                .subscribe(view::addItems);
+                        }
+                        .
+                        .
+                    }
+                </code></pre>
+            </section>
+        </section>
+
+        <!-- Networking... -->
+        <section class="stack present">
+            <h2>Network Setup</h2>
+            <section class="fade">
+                <pre><code data-trim data-noescape>
+                    // Retrofit2 Implementation... so awesome.
+                    public interface ItemService {
+
+                        /** Returns all items from our rest endpoint */
+                        @GET("/item") Observable&lt;List&lt;DomainItemModel&gt;&gt; getItems();
+                    }
+                </code></pre>
+            </section>
+            <section class="fade">
+                <pre><code data-trim data-noescape>
+                    // Our repository impl. (can be swapped out with
+                    // a persistent item-repository impl w/ no network conn.)
+                    public class ItemApiService implements ItemRepository {
+                        private ItemService mItemService;
+
+                        public ItemApiService(final Retrofit retrofit) {
+                            mItemService = retrofit.create(ItemService.class);
+                        }
+
+                        // Retrofit2 handles the rest for us!
+                        @Override public Observable&lt;List&lt;
+                            DomainItemModel&gt;&gt; getAllItems() {
+                            return mItemService.getItems();
+                        }
+                    }
+                </code></pre>
+            </section>
+        </section>
+
+        <!-- Domain layer setup -->
+        <section class="stack present">
+            <h2>The inner layer</h2>
+            <section class="fade">
+                <pre><code data-trim data-noescape>
+                public class DomainItemModel {
+
+                    private String id;
+                    private String name;
+                    private float price;
+                    private String description;
+
+                    .
+                    .
+                    .
+                </code></pre>
+            </section>
+            <section class="fade">
+                <pre><code data-trim data-noescape>
+                    // Contract defined by our inner layer so data-layer
+                    // can implement it, and be injected into our interactors
+                    // Without crossing the boundry.
+                    public interface ItemRepository {
+                        Observable&lt;DomainItemModel> getItem(final String id);
+                        Observable&lt;...&gt; getItems(final String searchTerm);
+                        Observable&lt;...&gt; getAllItems();
+                    }
+                </code></pre>
+            </section>
+            <section class="fade">
+                <pre><code data-trim data-noescape>
+                    // Our interactor (use-case). Takes in a repo, and threads.
+                    // Threads allow us to preform actions as requested.
+                    public class GetItemInteractor extends AbstractInteractor {
+
+                        public GetItemInteractor(ExecutionThread executionThread,
+                            PostExecutionThread postExecutionThread,
+                            ItemRepository itemRepository) {...}
+
+                        public Observable&lt;List&lt;DomainItemModel&gt;&gt; getAllItems() {
+                            return create().subscribeOn(Schedulers.from(executionThread))
+                                .observeOn(postExecutionThread.getScheduler())
+                        }
+                    }
+                </code></pre>
+            </section>
+        </section>
+        <section>
+            <h2>The Result?</h2>
+            <!--<img width="28%" src="http://i.imgur.com/aY6T5ns.png"/>-->
+            <img width="25%" src="https://github.com/niccorder/Shop/blob/util/utils/client-example.gif?raw=true"/>
+        </section>
+        <section>
+            <h2>What I learned</h2>
+            <ul>
+                <li>Setting up a full stack is fulfulling.</li>
+                <li>Different paradigms, different times.</li>
+                <li>The `goods` are shared.</li>
+                <li>Micro-services requires an extreme understanding of data communications.</li>
+            </ul>
+        </section>
+        <section>
+            <h1>Questions?</h1>
+        </section>
+    </div>
+</div>
+
+<script src="lib/js/head.min.js"></script>
+<script src="js/reveal.js"></script>
+
+<script>
+    // More info https://github.com/hakimel/reveal.js#configuration
+    Reveal.initialize({
+        history: true,
+
+        // More info https://github.com/hakimel/reveal.js#dependencies
+        dependencies: [
+            {src: 'plugin/markdown/marked.js'},
+            {src: 'plugin/markdown/markdown.js'},
+            {src: 'plugin/notes/notes.js', async: true},
+            {
+                src: 'plugin/highlight/highlight.js', async: true, callback: function () {
+                hljs.initHighlightingOnLoad();
+            }
+            }
+        ]
+    });
+
+    // displayed upon load, hides when slide changes
+    Reveal.addEventListener('slidechanged', function (event) {
+        document.querySelector('.reveal .footer').style.display = 'none';
+    });
+</script>
+</body>
+</html>
